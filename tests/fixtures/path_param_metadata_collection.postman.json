@@ -1,0 +1,34 @@
+{
+  "info": {
+    "name": "Path Param Metadata Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get order line",
+      "request": {
+        "method": "GET",
+        "description": "Retrieve one order line.",
+        "url": {
+          "raw": "https://api.example.com/orders/:orderId/lines/:lineId",
+          "protocol": "https",
+          "host": ["api", "example", "com"],
+          "path": ["orders", ":orderId", "lines", ":lineId"],
+          "variable": [
+            {
+              "key": "orderId",
+              "value": "order-123",
+              "description": "Customer-facing order identifier."
+            },
+            {
+              "key": "lineId",
+              "value": "line-9",
+              "disabled": true,
+              "description": "Optional line selector used in mocks."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

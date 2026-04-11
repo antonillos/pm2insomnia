@@ -1,0 +1,26 @@
+{
+  "info": {
+    "name": "Descriptions Collection",
+    "description": {
+      "content": "Collection level overview.",
+      "type": "text/plain"
+    },
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Orders",
+      "description": "Folder guidance for this section.",
+      "item": [
+        {
+          "name": "Get order",
+          "request": {
+            "method": "GET",
+            "description": "Request details for Insomnia users.",
+            "url": "https://api.example.com/orders/:id"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "info": {
+    "name": "Warnings Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.example.com"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('ok', function () {})"]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer"
+        },
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "query Ping { ping }"
+          }
+        },
+        "url": "{{baseUrl}}/token"
+      },
+      "response": [
+        {
+          "name": "sample"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "info": {
+    "name": "Response Quality Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create invoice",
+      "request": {
+        "method": "POST",
+        "url": "https://api.example.com/invoices"
+      },
+      "response": [
+        {
+          "name": "",
+          "status": "Created",
+          "code": 201,
+          "body": "{\"id\":\"inv-1\",\"status\":\"created\"}"
+        }
+      ]
+    }
+  ]
+}

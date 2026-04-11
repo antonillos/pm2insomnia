@@ -1,0 +1,36 @@
+{
+  "info": {
+    "name": "Path Params Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get item by id",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/items/:id?expand=details&version=1",
+          "protocol": "http",
+          "host": ["localhost:8080"],
+          "path": ["api", "items", ":id"],
+          "query": [
+            {
+              "key": "expand",
+              "value": "details"
+            },
+            {
+              "key": "version",
+              "value": "1"
+            }
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "123"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
