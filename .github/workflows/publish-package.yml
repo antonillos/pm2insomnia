@@ -41,6 +41,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: ${{ inputs.repository == 'testpypi' && 'https://test.pypi.org/legacy/' || (github.event_name == 'push' && 'https://upload.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/') }}
+          skip-existing: true
 
       - name: Create GitHub Release
         if: github.event_name == 'push'
