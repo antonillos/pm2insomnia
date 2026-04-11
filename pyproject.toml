@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pm2insomnia"
-version = "0.1.0"
+version = "0.1.1"
 description = "CLI to convert Postman collections into Insomnia imports"
 readme = "README.md"
 requires-python = ">=3.11"
