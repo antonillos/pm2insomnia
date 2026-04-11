@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="assets/post-insomnia-icon.svg" alt="pm2insomnia icon" width="180" /><br />
+  <img src="https://raw.githubusercontent.com/antonillos/pm2insomnia/main/assets/post-insomnia-icon.svg" alt="pm2insomnia icon" width="180" /><br />
   pm2insomnia
 </h1>
 
