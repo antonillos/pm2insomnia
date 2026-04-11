@@ -14,9 +14,9 @@
   </a>
 </p>
 
-<p align="center">
+<h3 align="center">
   Move your Postman collections to Insomnia in seconds — no manual work.
-</p>
+</h3>
 
 <p align="center">
   <a href="#install">Install</a> •
