@@ -8,6 +8,7 @@
     <img src="https://github.com/antonillos/pm2insomnia/actions/workflows/tests.yml/badge.svg" alt="Tests" />
   </a>
   <img src="https://img.shields.io/badge/python-3.11%2B-blue" alt="Python 3.11+" />
+  <img src="https://img.shields.io/badge/code%20style-ruff-261230?logo=ruff&logoColor=white" alt="Code style: Ruff" />
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT License" />
   </a>
