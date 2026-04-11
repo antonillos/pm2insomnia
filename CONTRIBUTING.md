@@ -4,9 +4,7 @@
 
 ```bash
 pip install -e ".[dev]"
-ruff check .
-ruff format --check .
-pytest
+make check
 ```
 
 ## Pull requests

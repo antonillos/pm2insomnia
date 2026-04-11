@@ -74,7 +74,9 @@ def test_cli_convert_pretty_and_workspace_name(tmp_path: Path) -> None:
     assert f"    output: {output}" in result.stdout
     assert "    workspace: Custom Workspace" in result.stdout
     payload = json.loads(output.read_text(encoding="utf-8"))
-    workspace = next(resource for resource in payload["resources"] if resource["_type"] == "workspace")
+    workspace = next(
+        resource for resource in payload["resources"] if resource["_type"] == "workspace"
+    )
     assert workspace["name"] == "Custom Workspace"
     assert output.read_text(encoding="utf-8").endswith("\n")
 
@@ -97,7 +99,9 @@ def test_cli_convert_help_mentions_default_output_location() -> None:
 
 def test_cli_generates_default_output_path_for_postman_input(tmp_path: Path) -> None:
     input_path = tmp_path / "sample.postman.json"
-    input_path.write_text((FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8")
+    input_path.write_text(
+        (FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8"
+    )
 
     result = run_cli(
         "convert",
@@ -115,7 +119,9 @@ def test_cli_generates_output_inside_output_dir(tmp_path: Path) -> None:
     input_path = tmp_path / "sample.postman.json"
     output_dir = tmp_path / "exports"
     output_dir.mkdir()
-    input_path.write_text((FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8")
+    input_path.write_text(
+        (FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8"
+    )
 
     result = run_cli(
         "convert",
@@ -134,7 +140,9 @@ def test_cli_generates_output_inside_output_dir(tmp_path: Path) -> None:
 def test_cli_appends_version_from_input_filename(tmp_path: Path) -> None:
     input_path = tmp_path / "sample-api-1.9.1.postman.json"
     output_path = tmp_path / "insomnia.json"
-    input_path.write_text((FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8")
+    input_path.write_text(
+        (FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8"
+    )
 
     result = run_cli(
         "convert",
@@ -148,7 +156,9 @@ def test_cli_appends_version_from_input_filename(tmp_path: Path) -> None:
     assert result.returncode == 0
     assert "    workspace: Demo Collection 1.9.1" in result.stdout
     payload = json.loads(output_path.read_text(encoding="utf-8"))
-    workspace = next(resource for resource in payload["resources"] if resource["_type"] == "workspace")
+    workspace = next(
+        resource for resource in payload["resources"] if resource["_type"] == "workspace"
+    )
     assert workspace["name"] == "Demo Collection 1.9.1"
 
 
@@ -186,10 +196,17 @@ def test_cli_accepts_environment_zip(tmp_path: Path) -> None:
     assert "==> Info" in result.stdout
     assert "normalized_environment_names" in result.stdout
     payload = json.loads(output.read_text(encoding="utf-8"))
-    environments = [resource for resource in payload["resources"] if resource["_type"] == "environment"]
+    environments = [
+        resource for resource in payload["resources"] if resource["_type"] == "environment"
+    ]
     assert len(environments) == 4
-    sub_environments = [resource for resource in environments if resource["name"] != "Base Environment"]
-    assert all(not environment["name"].startswith("technical-design.env.") for environment in sub_environments)
+    sub_environments = [
+        resource for resource in environments if resource["name"] != "Base Environment"
+    ]
+    assert all(
+        not environment["name"].startswith("technical-design.env.")
+        for environment in sub_environments
+    )
 
 
 def test_cli_skips_environment_zip_entries_with_parent_path_segments(tmp_path: Path) -> None:
@@ -208,15 +225,22 @@ def test_cli_skips_environment_zip_entries_with_parent_path_segments(tmp_path: P
 
     assert result.returncode == 0
     payload = json.loads(output.read_text(encoding="utf-8"))
-    environments = [resource for resource in payload["resources"] if resource["_type"] == "environment"]
-    imported_environments = [resource for resource in environments if resource["name"] != "Base Environment"]
+    environments = [
+        resource for resource in payload["resources"] if resource["_type"] == "environment"
+    ]
+    imported_environments = [
+        resource for resource in environments if resource["name"] != "Base Environment"
+    ]
     assert len(imported_environments) == 1
     assert imported_environments[0]["name"] == "safe-environment"
 
 
 def test_cli_bundle_generates_versioned_outputs_and_bundle_readme(tmp_path: Path) -> None:
     spec_path = tmp_path / "payments-service.yaml"
-    spec_path.write_text("openapi: 3.0.0\ninfo:\n  title: Payments Service 1.9.1\n  version: 1.9.1\n", encoding="utf-8")
+    spec_path.write_text(
+        "openapi: 3.0.0\ninfo:\n  title: Payments Service 1.9.1\n  version: 1.9.1\n",
+        encoding="utf-8",
+    )
 
     result = run_cli(
         "bundle",
@@ -233,7 +257,14 @@ def test_cli_bundle_generates_versioned_outputs_and_bundle_readme(tmp_path: Path
         "--pretty",
     )
 
-    collection_output = tmp_path / "bundle" / "collections" / "payments-service" / "1.9.1" / "payments-service.insomnia.json"
+    collection_output = (
+        tmp_path
+        / "bundle"
+        / "collections"
+        / "payments-service"
+        / "1.9.1"
+        / "payments-service.insomnia.json"
+    )
     spec_output = tmp_path / "bundle" / "api-docs" / "payments-service" / "1.9.1" / "openapi.yaml"
     readme_output = tmp_path / "bundle" / "api-docs" / "payments-service" / "1.9.1" / "README.md"
 
@@ -253,18 +284,28 @@ def test_cli_bundle_generates_versioned_outputs_and_bundle_readme(tmp_path: Path
     assert "Payments Service 1.9.1" not in spec_text
 
     payload = json.loads(collection_output.read_text(encoding="utf-8"))
-    workspace = next(resource for resource in payload["resources"] if resource["_type"] == "workspace")
+    workspace = next(
+        resource for resource in payload["resources"] if resource["_type"] == "workspace"
+    )
     assert "API name: payments-service" in workspace["description"]
     assert "API version: 1.9.1" in workspace["description"]
     assert "Original spec filename: payments-service.yaml" in workspace["description"]
 
     readme_text = readme_output.read_text(encoding="utf-8")
     assert "Import the API docs file as an Insomnia `Design Document`" in readme_text
-    assert "../../../collections/payments-service/1.9.1/payments-service.insomnia.json" in readme_text
-    assert "Runtime environment values in the Insomnia collection come from collection variables." in readme_text
+    assert (
+        "../../../collections/payments-service/1.9.1/payments-service.insomnia.json" in readme_text
+    )
+    assert (
+        "Runtime environment values in the Insomnia collection come from collection variables."
+        in readme_text
+    )
     assert "OpenAPI server entries are treated as documentation hints" in readme_text
     assert "Insomnia may auto-generate a spec-based collection" in readme_text
-    assert "Use the exported Insomnia collection JSON as the canonical working collection." in readme_text
+    assert (
+        "Use the exported Insomnia collection JSON as the canonical working collection."
+        in readme_text
+    )
     assert "OpenAPI env <host>" in readme_text
 
 
@@ -292,23 +333,42 @@ def test_cli_bundle_marks_imported_environments_as_runtime_source(tmp_path: Path
         str(spec_path),
     )
 
-    collection_output = tmp_path / "bundle" / "collections" / "payments-service" / "1.9.1" / "payments-service.insomnia.json"
+    collection_output = (
+        tmp_path
+        / "bundle"
+        / "collections"
+        / "payments-service"
+        / "1.9.1"
+        / "payments-service.insomnia.json"
+    )
     readme_output = tmp_path / "bundle" / "api-docs" / "payments-service" / "1.9.1" / "README.md"
-    bundled_spec_output = tmp_path / "bundle" / "api-docs" / "payments-service" / "1.9.1" / "openapi.yaml"
+    bundled_spec_output = (
+        tmp_path / "bundle" / "api-docs" / "payments-service" / "1.9.1" / "openapi.yaml"
+    )
 
     assert result.returncode == 0
     assert "spec_servers_replaced" in result.stdout
     payload = json.loads(collection_output.read_text(encoding="utf-8"))
-    workspace = next(resource for resource in payload["resources"] if resource["_type"] == "workspace")
+    workspace = next(
+        resource for resource in payload["resources"] if resource["_type"] == "workspace"
+    )
     assert "Runtime environments: imported Postman environment exports" in workspace["description"]
 
-    environments = [resource for resource in payload["resources"] if resource["_type"] == "environment"]
+    environments = [
+        resource for resource in payload["resources"] if resource["_type"] == "environment"
+    ]
     assert len(environments) == 4
 
     readme_text = readme_output.read_text(encoding="utf-8")
-    assert "Runtime environment values in the Insomnia collection come from imported Postman environment files." in readme_text
+    assert (
+        "Runtime environment values in the Insomnia collection come from imported Postman environment files."
+        in readme_text
+    )
     assert "OpenAPI server entries are treated as documentation hints" in readme_text
-    assert "Use the exported Insomnia collection JSON as the canonical working collection." in readme_text
+    assert (
+        "Use the exported Insomnia collection JSON as the canonical working collection."
+        in readme_text
+    )
     assert "OpenAPI env <host>" in readme_text
 
     bundled_spec_text = bundled_spec_output.read_text(encoding="utf-8")
@@ -396,20 +456,36 @@ def test_cli_bundle_keeps_path_param_metadata_inside_collection_json(tmp_path: P
         "1.0.0",
     )
 
-    collection_output = tmp_path / "bundle" / "collections" / "orders-api" / "1.0.0" / "orders-api.insomnia.json"
+    collection_output = (
+        tmp_path / "bundle" / "collections" / "orders-api" / "1.0.0" / "orders-api.insomnia.json"
+    )
 
     assert result.returncode == 0
     payload = json.loads(collection_output.read_text(encoding="utf-8"))
-    request = next(resource for resource in payload["resources"] if resource.get("_type") == "request")
+    request = next(
+        resource for resource in payload["resources"] if resource.get("_type") == "request"
+    )
     assert request["pathParameters"] == [
-        {"name": "orderId", "value": "order-123", "description": "Customer-facing order identifier.", "disabled": False},
-        {"name": "lineId", "value": "line-9", "description": "Optional line selector used in mocks.", "disabled": True},
+        {
+            "name": "orderId",
+            "value": "order-123",
+            "description": "Customer-facing order identifier.",
+            "disabled": False,
+        },
+        {
+            "name": "lineId",
+            "value": "line-9",
+            "description": "Optional line selector used in mocks.",
+            "disabled": True,
+        },
     ]
 
 
 def test_cli_bundle_detects_api_version_from_input_filename(tmp_path: Path) -> None:
     input_path = tmp_path / "demo-api-2.4.0.postman.json"
-    input_path.write_text((FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8")
+    input_path.write_text(
+        (FIXTURES / "simple_collection.postman.json").read_text(encoding="utf-8"), encoding="utf-8"
+    )
 
     result = run_cli(
         "bundle",
@@ -419,7 +495,14 @@ def test_cli_bundle_detects_api_version_from_input_filename(tmp_path: Path) -> N
         str(tmp_path / "bundle"),
     )
 
-    collection_output = tmp_path / "bundle" / "collections" / "demo-collection" / "2.4.0" / "demo-collection.insomnia.json"
+    collection_output = (
+        tmp_path
+        / "bundle"
+        / "collections"
+        / "demo-collection"
+        / "2.4.0"
+        / "demo-collection.insomnia.json"
+    )
     readme_output = tmp_path / "bundle" / "api-docs" / "demo-collection" / "2.4.0" / "README.md"
 
     assert result.returncode == 0
@@ -458,7 +541,14 @@ def test_cli_bundle_strips_version_from_generated_slug_paths(tmp_path: Path) -> 
         "1.9.1",
     )
 
-    collection_output = tmp_path / "bundle" / "collections" / "technical-design" / "1.9.1" / "technical-design.insomnia.json"
+    collection_output = (
+        tmp_path
+        / "bundle"
+        / "collections"
+        / "technical-design"
+        / "1.9.1"
+        / "technical-design.insomnia.json"
+    )
     readme_output = tmp_path / "bundle" / "api-docs" / "technical-design" / "1.9.1" / "README.md"
 
     assert result.returncode == 0
