@@ -4,7 +4,6 @@ import sys
 import zipfile
 from pathlib import Path
 
-
 FIXTURES = Path(__file__).parent / "fixtures"
 ROOT = Path(__file__).resolve().parent.parent
 

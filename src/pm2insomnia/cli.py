@@ -59,9 +59,18 @@ def build_parser() -> argparse.ArgumentParser:
         description=f"{ASCII_ART}\nPostman to Insomnia",
     )
     _add_shared_collection_arguments(bundle)
-    bundle.add_argument("--output-dir", required=True, type=Path, help="Root directory for the generated bundle")
-    bundle.add_argument("--api-version", type=str, default=None, help="API version used in the bundle folder layout")
-    bundle.add_argument("--spec", type=Path, default=None, help="Optional OpenAPI or Swagger file to copy into the bundle")
+    bundle.add_argument(
+        "--output-dir", required=True, type=Path, help="Root directory for the generated bundle"
+    )
+    bundle.add_argument(
+        "--api-version", type=str, default=None, help="API version used in the bundle folder layout"
+    )
+    bundle.add_argument(
+        "--spec",
+        type=Path,
+        default=None,
+        help="Optional OpenAPI or Swagger file to copy into the bundle",
+    )
     bundle.set_defaults(handler=handle_bundle)
     return parser
 
@@ -90,11 +99,15 @@ def handle_bundle(args: argparse.Namespace) -> int:
     result = convert_collection(collection, workspace_name=workspace_name)
     api_version = args.api_version or _detect_version_from_filename(args.input.name)
     if not api_version:
-        raise CliError("--api-version is required when it cannot be detected from the input filename")
+        raise CliError(
+            "--api-version is required when it cannot be detected from the input filename"
+        )
     bundle_label = _format_bundle_label(workspace_name, api_version)
     api_slug = slugify_api_name(workspace_name, api_version)
     collection_filename = f"{api_slug}.insomnia.json"
-    bundled_collection_output = args.output_dir / "collections" / api_slug / api_version / collection_filename
+    bundled_collection_output = (
+        args.output_dir / "collections" / api_slug / api_version / collection_filename
+    )
     bundled_docs_dir = args.output_dir / "api-docs" / api_slug / api_version
     bundled_readme_output = bundled_docs_dir / "README.md"
     _print_step(f"Writing bundle {bundle_label}")
@@ -102,7 +115,7 @@ def handle_bundle(args: argparse.Namespace) -> int:
     if args.spec is not None:
         _print_detail(f"spec: {bundled_docs_dir / _normalize_spec_output_name(args.spec.name)}")
     _print_detail(f"readme: {bundled_readme_output}")
-    paths = write_versioned_bundle(
+    write_versioned_bundle(
         result,
         output_dir=args.output_dir,
         api_name=workspace_name,
@@ -238,7 +251,9 @@ def _default_output_path(input_path: Path) -> Path:
     return input_path.with_name(f"{input_path.stem}.insomnia.json")
 
 
-def _resolve_output_path(input_path: Path, output_path: Path | None, output_dir: Path | None) -> Path:
+def _resolve_output_path(
+    input_path: Path, output_path: Path | None, output_dir: Path | None
+) -> Path:
     if output_path is not None:
         return output_path
 

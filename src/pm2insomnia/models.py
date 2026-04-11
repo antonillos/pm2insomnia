@@ -88,7 +88,7 @@ class RequestItem:
 class Folder:
     name: str
     description: str = ""
-    items: list["CollectionNode"] = field(default_factory=list)
+    items: list[CollectionNode] = field(default_factory=list)
 
 
 CollectionNode = Folder | RequestItem

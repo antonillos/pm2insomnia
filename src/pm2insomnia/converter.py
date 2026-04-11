@@ -1,12 +1,25 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from itertools import count
-from typing import Any, Iterable
+from typing import Any
 
-from pm2insomnia.models import Body, Collection, CollectionNode, ConversionResult, EnvironmentSpec, ExampleResponse, Folder, RequestItem, WarningMessage
+from pm2insomnia.models import (
+    Body,
+    Collection,
+    CollectionNode,
+    ConversionResult,
+    EnvironmentSpec,
+    ExampleResponse,
+    Folder,
+    RequestItem,
+    WarningMessage,
+)
 
 
-def convert_collection(collection: Collection, workspace_name: str | None = None) -> ConversionResult:
+def convert_collection(
+    collection: Collection, workspace_name: str | None = None
+) -> ConversionResult:
     workspace_id = _resource_id("wrk", 1)
     environment_id = _resource_id("env", 1)
     sequence = count(start=1)
@@ -145,7 +158,9 @@ def _to_insomnia_environments(
     return resources
 
 
-def _to_insomnia_responses(request_id: str, examples: list[ExampleResponse], sequence: count) -> list[dict[str, Any]]:
+def _to_insomnia_responses(
+    request_id: str, examples: list[ExampleResponse], sequence: count
+) -> list[dict[str, Any]]:
     responses: list[dict[str, Any]] = []
     for example in examples:
         response_id = _resource_id("rsp", next(sequence))

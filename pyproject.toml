@@ -26,7 +26,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["build>=1.2.2", "pytest>=8.0.0", "twine>=6.1.0"]
+dev = ["build>=1.2.2", "pytest>=8.0.0", "ruff>=0.11.0", "twine>=6.1.0"]
 
 [project.scripts]
 pm2insomnia = "pm2insomnia.cli:main"
@@ -34,6 +34,19 @@ pm2insomnia = "pm2insomnia.cli:main"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

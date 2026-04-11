@@ -27,7 +27,9 @@ def write_versioned_bundle(
 ) -> BundlePaths:
     api_slug = slugify_api_name(api_name, api_version)
     has_imported_environments = _has_imported_environments(result)
-    collection_output = output_dir / "collections" / api_slug / api_version / f"{api_slug}.insomnia.json"
+    collection_output = (
+        output_dir / "collections" / api_slug / api_version / f"{api_slug}.insomnia.json"
+    )
     docs_dir = output_dir / "api-docs" / api_slug / api_version
     docs_readme_output = docs_dir / "README.md"
 
@@ -105,7 +107,9 @@ def _write_spec_for_bundle(
     replace_servers_from_environments: bool,
 ) -> None:
     suffix = source_path.suffix.lower()
-    servers = _build_openapi_servers_from_result(result) if replace_servers_from_environments else []
+    servers = (
+        _build_openapi_servers_from_result(result) if replace_servers_from_environments else []
+    )
 
     if suffix == ".json":
         _write_json_spec(source_path, output_path, servers)
@@ -124,7 +128,9 @@ def _write_json_spec(source_path: Path, output_path: Path, servers: list[dict[st
         _normalize_openapi_info_title(payload)
         if servers:
             payload["servers"] = servers
-    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    output_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
 
 
 def _write_yaml_spec(source_path: Path, output_path: Path, servers: list[dict[str, str]]) -> None:
@@ -220,7 +226,9 @@ def _normalize_yaml_info_title(lines: list[str]) -> list[str]:
     if normalized_title == unquoted_title:
         return normalized_lines
 
-    normalized_lines[title_index] = re.sub(r"(:\s*).*$", rf"\1{_yaml_quote(normalized_title)}", normalized_lines[title_index], count=1)
+    normalized_lines[title_index] = re.sub(
+        r"(:\s*).*$", rf"\1{_yaml_quote(normalized_title)}", normalized_lines[title_index], count=1
+    )
     return normalized_lines
 
 
@@ -248,7 +256,9 @@ def _attach_bundle_metadata(
     spec_path: Path | None,
     has_imported_environments: bool,
 ) -> None:
-    workspace = next((resource for resource in result.resources if resource.get("_type") == "workspace"), None)
+    workspace = next(
+        (resource for resource in result.resources if resource.get("_type") == "workspace"), None
+    )
     if workspace is None:
         return
 
@@ -352,7 +362,9 @@ def _build_bundle_readme(
 
 
 def _has_imported_environments(result: ConversionResult) -> bool:
-    environment_count = sum(1 for resource in result.resources if resource.get("_type") == "environment")
+    environment_count = sum(
+        1 for resource in result.resources if resource.get("_type") == "environment"
+    )
     return environment_count > 1
 
 
@@ -399,5 +411,7 @@ def _collect_path_param_notes(result: ConversionResult) -> list[tuple[str, str]]
         cleaned_note = note.strip()
         if not cleaned_note:
             continue
-        notes.append((str(resource.get("name", "Unnamed request")), f"Path variables:\n{cleaned_note}"))
+        notes.append(
+            (str(resource.get("name", "Unnamed request")), f"Path variables:\n{cleaned_note}")
+        )
     return notes

@@ -5,7 +5,18 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
-from pm2insomnia.models import Authentication, Body, Collection, ExampleResponse, Folder, Header, PathParam, QueryParam, RequestItem, WarningMessage
+from pm2insomnia.models import (
+    Authentication,
+    Body,
+    Collection,
+    ExampleResponse,
+    Folder,
+    Header,
+    PathParam,
+    QueryParam,
+    RequestItem,
+    WarningMessage,
+)
 
 
 def parse_postman_collection(path: Path) -> Collection:
@@ -28,7 +39,9 @@ def parse_postman_collection(path: Path) -> Collection:
     )
 
 
-def _collection_level_warnings(payload: dict[str, Any], collection_name: str) -> list[WarningMessage]:
+def _collection_level_warnings(
+    payload: dict[str, Any], collection_name: str
+) -> list[WarningMessage]:
     warnings: list[WarningMessage] = []
     events = payload.get("event", [])
     if events:
@@ -52,19 +65,27 @@ def _parse_collection_variables(entries: list[dict[str, Any]]) -> dict[str, Any]
     return variables
 
 
-def _parse_item(item: dict[str, Any], path_parts: list[str], inherited_auth: Authentication | None) -> Folder | RequestItem | None:
+def _parse_item(
+    item: dict[str, Any], path_parts: list[str], inherited_auth: Authentication | None
+) -> Folder | RequestItem | None:
     name = item.get("name", "Unnamed item")
     current_path = [*path_parts, name]
     if "item" in item:
-        children = [_parse_item(child, current_path, inherited_auth) for child in item.get("item", [])]
+        children = [
+            _parse_item(child, current_path, inherited_auth) for child in item.get("item", [])
+        ]
         folder_items = [child for child in children if child is not None]
-        return Folder(name=name, description=_parse_description(item.get("description")), items=folder_items)
+        return Folder(
+            name=name, description=_parse_description(item.get("description")), items=folder_items
+        )
     if "request" in item:
         return _parse_request_item(name, item, current_path, inherited_auth)
     return None
 
 
-def _parse_request_item(name: str, item: dict[str, Any], path_parts: list[str], inherited_auth: Authentication | None) -> RequestItem:
+def _parse_request_item(
+    name: str, item: dict[str, Any], path_parts: list[str], inherited_auth: Authentication | None
+) -> RequestItem:
     request = item["request"]
     method = request.get("method", "GET")
     url, query_params, path_params = _parse_url(request.get("url"))
@@ -77,7 +98,9 @@ def _parse_request_item(name: str, item: dict[str, Any], path_parts: list[str], 
     )
     authentication = _parse_auth(request.get("auth")) or inherited_auth
     examples = _parse_examples(item.get("response", []))
-    warnings = _parse_request_warnings(item=item, request=request, location=" / ".join(path_parts), inherited_auth=inherited_auth)
+    warnings = _parse_request_warnings(
+        item=item, request=request, location=" / ".join(path_parts), inherited_auth=inherited_auth
+    )
     return RequestItem(
         name=name,
         method=method,
@@ -131,11 +154,17 @@ def _build_structured_url(raw_url: dict[str, Any]) -> str:
     return base
 
 
+def _normalize_path_segments(segments: list[Any]) -> list[str]:
+    return [str(segment).strip("/") for segment in segments]
+
+
 def _strip_query_string(raw_url: str) -> str:
     split_result = urlsplit(raw_url)
     if not split_result.query:
         return raw_url
-    return urlunsplit((split_result.scheme, split_result.netloc, split_result.path, "", split_result.fragment))
+    return urlunsplit(
+        (split_result.scheme, split_result.netloc, split_result.path, "", split_result.fragment)
+    )
 
 
 def _parse_query_params(entries: list[dict[str, Any]]) -> list[QueryParam]:
@@ -284,7 +313,9 @@ def _build_example_name(entry: dict[str, Any], status_code: int, status_text: st
     if raw_name:
         return raw_name
 
-    status_parts = [part for part in [str(status_code) if status_code else "", status_text.strip()] if part]
+    status_parts = [
+        part for part in [str(status_code) if status_code else "", status_text.strip()] if part
+    ]
     if status_parts:
         return f"Response {' '.join(status_parts)}"
     return "Example Response"
@@ -295,7 +326,9 @@ def _infer_mime_type_from_body(body: str) -> str:
     if not stripped:
         return "text/plain"
     # Best-effort fallback when Postman does not provide explicit content metadata.
-    if (stripped.startswith("{") and stripped.endswith("}")) or (stripped.startswith("[") and stripped.endswith("]")):
+    if (stripped.startswith("{") and stripped.endswith("}")) or (
+        stripped.startswith("[") and stripped.endswith("]")
+    ):
         return "application/json"
     if stripped.startswith("<?xml") or (stripped.startswith("<") and stripped.endswith(">")):
         return "application/xml" if stripped.startswith("<?xml") else "text/html"

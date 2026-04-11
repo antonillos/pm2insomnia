@@ -1,11 +1,10 @@
-from pathlib import Path
 import json
 import zipfile
+from pathlib import Path
 
 from pm2insomnia.converter import convert_collection
 from pm2insomnia.postman_environment_parser import parse_postman_environments
 from pm2insomnia.postman_parser import parse_postman_collection
-
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -21,9 +20,11 @@ def test_parse_and_convert_simple_collection() -> None:
     assert result.workspace_name == "Demo Collection"
     assert sum(1 for resource in result.resources if resource["_type"] == "request") == 2
     assert sum(1 for resource in result.resources if resource["_type"] == "request_group") == 1
-    create_request = next(resource for resource in result.resources if resource.get("name") == "Create user")
+    create_request = next(
+        resource for resource in result.resources if resource.get("name") == "Create user"
+    )
     assert create_request["body"]["mimeType"] == "application/json"
-    assert create_request["body"]["text"] == "{\"name\":\"Ada\"}"
+    assert create_request["body"]["text"] == '{"name":"Ada"}'
 
 
 def test_convert_collection_level_bearer_auth() -> None:
@@ -31,7 +32,9 @@ def test_convert_collection_level_bearer_auth() -> None:
 
     result = convert_collection(collection)
 
-    request = next(resource for resource in result.resources if resource.get("name") == "Create resource")
+    request = next(
+        resource for resource in result.resources if resource.get("name") == "Create resource"
+    )
     assert request["authentication"] == {
         "type": "bearer",
         "token": "{{bearerToken}}",
@@ -63,8 +66,18 @@ def test_preserve_path_param_metadata_in_request_export() -> None:
     request = next(resource for resource in result.resources if resource["_type"] == "request")
     assert request["url"] == "https://api.example.com/orders/:orderId/lines/:lineId"
     assert request["pathParameters"] == [
-        {"name": "orderId", "value": "order-123", "description": "Customer-facing order identifier.", "disabled": False},
-        {"name": "lineId", "value": "line-9", "description": "Optional line selector used in mocks.", "disabled": True},
+        {
+            "name": "orderId",
+            "value": "order-123",
+            "description": "Customer-facing order identifier.",
+            "disabled": False,
+        },
+        {
+            "name": "lineId",
+            "value": "line-9",
+            "description": "Optional line selector used in mocks.",
+            "disabled": True,
+        },
     ]
     assert "Path variables:" in request["description"]
     assert "`orderId`:" in request["description"]
@@ -97,7 +110,9 @@ def test_collect_warnings_for_unsupported_features() -> None:
     assert responses[0]["name"] == "sample"
     request = next(resource for resource in result.resources if resource["_type"] == "request")
     assert request["authentication"] == {"type": "bearer", "token": ""}
-    environment = next(resource for resource in result.resources if resource["_type"] == "environment")
+    environment = next(
+        resource for resource in result.resources if resource["_type"] == "environment"
+    )
     assert environment["data"] == {"baseUrl": "https://api.example.com"}
     warning_kinds = sorted(warning.kind for warning in result.warnings)
     assert warning_kinds == [
@@ -120,7 +135,9 @@ def test_preserve_collection_folder_and_request_descriptions() -> None:
     result = convert_collection(collection)
 
     workspace = next(resource for resource in result.resources if resource["_type"] == "workspace")
-    request_group = next(resource for resource in result.resources if resource["_type"] == "request_group")
+    request_group = next(
+        resource for resource in result.resources if resource["_type"] == "request_group"
+    )
     request = next(resource for resource in result.resources if resource["_type"] == "request")
 
     assert workspace["description"] == "Collection level overview."
@@ -146,11 +163,15 @@ def test_parse_environment_zip_and_export_sub_environments(tmp_path: Path) -> No
         },
         "sample.env.pro.store.json": {
             "name": "sample.env.pro.store",
-            "values": [{"key": "baseUrl", "value": "https://pro-store.example.com", "enabled": True}],
+            "values": [
+                {"key": "baseUrl", "value": "https://pro-store.example.com", "enabled": True}
+            ],
         },
         "sample.env.lab.local.json": {
             "name": "sample.env.lab.local",
-            "values": [{"key": "baseUrl", "value": "https://lab-local.example.com", "enabled": True}],
+            "values": [
+                {"key": "baseUrl", "value": "https://lab-local.example.com", "enabled": True}
+            ],
         },
     }
     with zipfile.ZipFile(environment_zip, "w") as archive:
@@ -165,7 +186,9 @@ def test_parse_environment_zip_and_export_sub_environments(tmp_path: Path) -> No
 
     environments = [resource for resource in result.resources if resource["_type"] == "environment"]
     assert len(environments) == 6
-    sub_environments = [resource for resource in environments if resource["name"] != "Base Environment"]
+    sub_environments = [
+        resource for resource in environments if resource["name"] != "Base Environment"
+    ]
     assert len(sub_environments) == 5
     assert {environment["name"] for environment in sub_environments} == {
         "pre.dev",
@@ -174,7 +197,9 @@ def test_parse_environment_zip_and_export_sub_environments(tmp_path: Path) -> No
         "pro.store",
         "lab.local",
     }
-    assert all(not environment["name"].startswith("sample.env.") for environment in sub_environments)
+    assert all(
+        not environment["name"].startswith("sample.env.") for environment in sub_environments
+    )
     assert sub_environments[0]["data"]["baseUrl"].startswith("https://")
     assert len(result.infos) == 1
     assert result.infos[0].kind == "normalized_environment_names"

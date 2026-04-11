@@ -5,7 +5,9 @@ from pm2insomnia.models import ConversionResult
 
 def build_summary(result: ConversionResult) -> str:
     request_count = sum(1 for resource in result.resources if resource.get("_type") == "request")
-    folder_count = sum(1 for resource in result.resources if resource.get("_type") == "request_group")
+    folder_count = sum(
+        1 for resource in result.resources if resource.get("_type") == "request_group"
+    )
     lines = [
         _format_section_header("Summary"),
         f"    workspace: {result.workspace_name}",

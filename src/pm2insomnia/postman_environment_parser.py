@@ -13,7 +13,9 @@ def parse_postman_environments(path: Path) -> tuple[list[EnvironmentSpec], list[
     if suffix == ".zip":
         return _parse_environment_zip(path)
     if suffix == ".json":
-        return [_parse_environment_payload(json.loads(path.read_text(encoding="utf-8")), path.stem)], []
+        return [
+            _parse_environment_payload(json.loads(path.read_text(encoding="utf-8")), path.stem)
+        ], []
     raise ValueError(f"Unsupported environment file format: {path.name}")
 
 
@@ -52,7 +54,7 @@ def _normalize_environment_names(
 
     tokenized_names = [environment.name.split(".") for environment in environments]
     common_token_count = 0
-    for candidate_tokens in zip(*tokenized_names):
+    for candidate_tokens in zip(*tokenized_names, strict=False):
         if len(set(candidate_tokens)) != 1:
             break
         common_token_count += 1
@@ -66,7 +68,7 @@ def _normalize_environment_names(
             name=".".join(tokens[common_token_count:]) or environment.name,
             variables=environment.variables,
         )
-        for environment, tokens in zip(environments, tokenized_names)
+        for environment, tokens in zip(environments, tokenized_names, strict=False)
     ]
     infos = [
         InfoMessage(
