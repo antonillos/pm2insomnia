@@ -1,8 +1,17 @@
-<p align="center">
-  <img src="assets/post-insomnia-icon.svg" alt="pm2insomnia icon" width="180" />
-</p>
+<h1 align="center">
+  <img src="assets/post-insomnia-icon.svg" alt="pm2insomnia icon" width="180" /><br />
+  pm2insomnia
+</h1>
 
-<h1 align="center">pm2insomnia</h1>
+<p align="center">
+  <a href="https://github.com/antonillos/pm2insomnia/actions/workflows/tests.yml">
+    <img src="https://github.com/antonillos/pm2insomnia/actions/workflows/tests.yml/badge.svg" alt="Tests" />
+  </a>
+  <img src="https://img.shields.io/badge/python-3.11%2B-blue" alt="Python 3.11+" />
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT License" />
+  </a>
+</p>
 
 <p align="center">
   Move your Postman collections to Insomnia in seconds — no manual work.
