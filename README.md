@@ -121,6 +121,11 @@ pm2insomnia bundle \
 ✅ Saved response examples  
 ✅ Collection variables → Insomnia base environment  
 ✅ Postman environments → Insomnia sub-environments  
+✅ Postman `{{variable}}` references → Insomnia `{{ _.variable }}` syntax  
+
+Collection variables that only repeat their own key, such as
+`"bearerToken": "bearerToken"`, are skipped from the generated base
+environment so they do not override inherited values in Insomnia.
 
 ## What doesn't convert
 
@@ -129,7 +134,6 @@ These Postman features have no direct equivalent in Insomnia and are skipped. Th
 - Pre-request and test scripts
 - Auth types other than Bearer
 - GraphQL body mode
-- Variable resolution (placeholders are kept as-is)
 
 ## License
 

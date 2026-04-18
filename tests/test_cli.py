@@ -209,6 +209,37 @@ def test_cli_accepts_environment_zip(tmp_path: Path) -> None:
     )
 
 
+def test_cli_reports_skipped_self_referential_collection_variables(tmp_path: Path) -> None:
+    output = tmp_path / "insomnia.json"
+    collection_path = tmp_path / "self-referential-variables.postman.json"
+    collection_path.write_text(
+        json.dumps(
+            {
+                "info": {"name": "Demo Collection"},
+                "variable": [
+                    {"key": "bearerToken", "value": "bearerToken"},
+                    {"key": "baseUrl", "value": "https://api.example.com"},
+                ],
+                "item": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = run_cli(
+        "convert",
+        "--input",
+        str(collection_path),
+        "--output",
+        str(output),
+    )
+
+    assert result.returncode == 0
+    assert "==> Info" in result.stdout
+    assert "skipped_self_referential_collection_variables" in result.stdout
+    assert "'bearerToken'" in result.stdout
+
+
 def test_cli_skips_environment_zip_entries_with_parent_path_segments(tmp_path: Path) -> None:
     output = tmp_path / "insomnia.json"
     environment_zip = build_environment_zip_with_traversal_entry(tmp_path / "environments.zip")
@@ -378,6 +409,58 @@ def test_cli_bundle_marks_imported_environments_as_runtime_source(tmp_path: Path
     assert "https://pre-pro.example.com" in bundled_spec_text
     assert "https://pro-cp.example.com" in bundled_spec_text
     assert "description:" not in bundled_spec_text
+
+
+def test_cli_bundle_deduplicates_openapi_servers_from_environment_base_urls(tmp_path: Path) -> None:
+    spec_path = tmp_path / "payments-service.yaml"
+    spec_path.write_text(
+        "openapi: 3.0.0\ninfo:\n  title: Payments Service\n  version: 1.9.1\nservers:\n  - url: https://docs.example.com\n",
+        encoding="utf-8",
+    )
+
+    environment_zip = tmp_path / "environments.zip"
+    duplicate_payloads = {
+        "sample.env.pre.internal.json": {
+            "name": "sample.env.pre.internal",
+            "values": [{"key": "baseUrl", "value": "https://pre.example.com", "enabled": True}],
+        },
+        "sample.env.pre.external.json": {
+            "name": "sample.env.pre.external",
+            "values": [{"key": "baseUrl", "value": "https://pre.example.com", "enabled": True}],
+        },
+        "sample.env.pro.external.json": {
+            "name": "sample.env.pro.external",
+            "values": [{"key": "baseUrl", "value": "https://pro.example.com", "enabled": True}],
+        },
+    }
+    with zipfile.ZipFile(environment_zip, "w") as archive:
+        for filename, payload in duplicate_payloads.items():
+            archive.writestr(filename, json.dumps(payload))
+
+    result = run_cli(
+        "bundle",
+        "--input",
+        str(FIXTURES / "simple_collection.postman.json"),
+        "--environment",
+        str(environment_zip),
+        "--output-dir",
+        str(tmp_path / "bundle"),
+        "--workspace-name",
+        "Payments Service",
+        "--api-version",
+        "1.9.1",
+        "--spec",
+        str(spec_path),
+    )
+
+    bundled_spec_output = (
+        tmp_path / "bundle" / "api-docs" / "payments-service" / "1.9.1" / "openapi.yaml"
+    )
+
+    assert result.returncode == 0
+    bundled_spec_text = bundled_spec_output.read_text(encoding="utf-8")
+    assert bundled_spec_text.count('url: "https://pre.example.com"') == 1
+    assert bundled_spec_text.count('url: "https://pro.example.com"') == 1
 
 
 def test_cli_bundle_normalizes_json_spec_title_when_version_is_duplicated(tmp_path: Path) -> None:

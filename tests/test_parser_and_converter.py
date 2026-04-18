@@ -37,9 +37,18 @@ def test_convert_collection_level_bearer_auth() -> None:
     )
     assert request["authentication"] == {
         "type": "bearer",
-        "token": "{{bearerToken}}",
+        "token": "{{ _.bearerToken }}",
     }
     assert "unsupported_auth" not in [warning.kind for warning in result.warnings]
+
+
+def test_convert_postman_variable_references_to_insomnia_template_syntax() -> None:
+    collection = parse_postman_collection(FIXTURES / "warnings_collection.postman.json")
+
+    result = convert_collection(collection)
+
+    request = next(resource for resource in result.resources if resource["_type"] == "request")
+    assert request["url"] == "{{ _.baseUrl }}/token"
 
 
 def test_convert_path_params_and_query_without_duplication() -> None:
@@ -203,3 +212,47 @@ def test_parse_environment_zip_and_export_sub_environments(tmp_path: Path) -> No
     assert sub_environments[0]["data"]["baseUrl"].startswith("https://")
     assert len(result.infos) == 1
     assert result.infos[0].kind == "normalized_environment_names"
+
+
+def test_resource_ids_are_unique_across_multiple_exports() -> None:
+    collection = parse_postman_collection(FIXTURES / "simple_collection.postman.json")
+
+    first_result = convert_collection(collection)
+    second_result = convert_collection(collection)
+
+    first_ids = {resource["_id"] for resource in first_result.resources}
+    second_ids = {resource["_id"] for resource in second_result.resources}
+
+    assert first_ids.isdisjoint(second_ids)
+
+
+def test_skip_self_referential_collection_variables_from_base_environment(tmp_path: Path) -> None:
+    collection_path = tmp_path / "self-referential-variables.postman.json"
+    collection_path.write_text(
+        json.dumps(
+            {
+                "info": {"name": "Demo Collection"},
+                "variable": [
+                    {"key": "bearerToken", "value": "bearerToken"},
+                    {"key": "baseUrl", "value": "https://api.example.com"},
+                    {"key": "tenantId", "value": "tenant-a"},
+                ],
+                "item": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    collection = parse_postman_collection(collection_path)
+    result = convert_collection(collection)
+
+    assert len(collection.infos) == 1
+    assert collection.infos[0].kind == "skipped_self_referential_collection_variables"
+    assert "'bearerToken'" in collection.infos[0].message
+    environment = next(
+        resource for resource in result.resources if resource["_type"] == "environment"
+    )
+    assert environment["data"] == {
+        "baseUrl": "https://api.example.com",
+        "tenantId": "tenant-a",
+    }
