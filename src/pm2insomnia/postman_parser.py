@@ -57,7 +57,9 @@ def _collection_level_warnings(
     return warnings
 
 
-def _parse_collection_variables(entries: list[dict[str, Any]]) -> tuple[dict[str, Any], list[InfoMessage]]:
+def _parse_collection_variables(
+    entries: list[dict[str, Any]],
+) -> tuple[dict[str, Any], list[InfoMessage]]:
     variables: dict[str, Any] = {}
     skipped_keys: list[str] = []
     for entry in entries:

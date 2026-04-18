@@ -44,13 +44,13 @@ def convert_collection(
         },
     ]
     resources.extend(
-        _to_insomnia_environments(
-            environment_id, collection.environments, sequence, resource_token
-        )
+        _to_insomnia_environments(environment_id, collection.environments, sequence, resource_token)
     )
 
     warnings = list(collection.warnings)
-    resources.extend(_convert_nodes(collection.items, workspace_id, sequence, warnings, resource_token))
+    resources.extend(
+        _convert_nodes(collection.items, workspace_id, sequence, warnings, resource_token)
+    )
 
     return ConversionResult(
         workspace_name=workspace_name or collection.name,
@@ -87,7 +87,9 @@ def _convert_nodes(
         elif isinstance(item, RequestItem):
             request_id = _resource_id("req", resource_token, next(sequence))
             resources.append(_to_insomnia_request(request_id, parent_id, item))
-            resources.extend(_to_insomnia_responses(request_id, item.examples, sequence, resource_token))
+            resources.extend(
+                _to_insomnia_responses(request_id, item.examples, sequence, resource_token)
+            )
             warnings.extend(item.warnings)
     return resources
 
@@ -142,7 +144,10 @@ def _to_insomnia_body(body: Body) -> dict[str, Any]:
         mime_type = body.options.get("raw", {}).get("language")
         if mime_type == "json":
             mime_type = "application/json"
-        return {"mimeType": mime_type or "text/plain", "text": _to_insomnia_template_string(body.raw or "")}
+        return {
+            "mimeType": mime_type or "text/plain",
+            "text": _to_insomnia_template_string(body.raw or ""),
+        }
     if body.mode == "urlencoded":
         return {
             "mimeType": "application/x-www-form-urlencoded",
