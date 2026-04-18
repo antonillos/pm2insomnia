@@ -370,6 +370,7 @@ def _has_imported_environments(result: ConversionResult) -> bool:
 
 def _build_openapi_servers_from_result(result: ConversionResult) -> list[dict[str, str]]:
     servers: list[dict[str, str]] = []
+    seen_urls: set[str] = set()
     for resource in result.resources:
         if resource.get("_type") != "environment":
             continue
@@ -379,9 +380,13 @@ def _build_openapi_servers_from_result(result: ConversionResult) -> list[dict[st
         base_url = data.get("baseUrl")
         if not isinstance(base_url, str) or not base_url.strip():
             continue
+        normalized_url = base_url.strip()
+        if normalized_url in seen_urls:
+            continue
+        seen_urls.add(normalized_url)
         servers.append(
             {
-                "url": base_url.strip(),
+                "url": normalized_url,
             }
         )
     return servers

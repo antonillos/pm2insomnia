@@ -12,6 +12,7 @@ from pm2insomnia.models import (
     ExampleResponse,
     Folder,
     Header,
+    InfoMessage,
     PathParam,
     QueryParam,
     RequestItem,
@@ -28,13 +29,14 @@ def parse_postman_collection(path: Path) -> Collection:
     items = [_parse_item(item, [name], collection_auth) for item in payload.get("item", [])]
     collection_items = [item for item in items if item is not None]
     warnings = _collection_level_warnings(payload, name)
-    variables = _parse_collection_variables(payload.get("variable", []))
+    variables, infos = _parse_collection_variables(payload.get("variable", []))
     return Collection(
         name=name,
         items=collection_items,
         description=description,
         variables=variables,
         authentication=collection_auth,
+        infos=infos,
         warnings=warnings,
     )
 
@@ -55,14 +57,32 @@ def _collection_level_warnings(
     return warnings
 
 
-def _parse_collection_variables(entries: list[dict[str, Any]]) -> dict[str, Any]:
+def _parse_collection_variables(
+    entries: list[dict[str, Any]],
+) -> tuple[dict[str, Any], list[InfoMessage]]:
     variables: dict[str, Any] = {}
+    skipped_keys: list[str] = []
     for entry in entries:
         key = str(entry.get("key", "")).strip()
         if not key:
             continue
-        variables[key] = entry.get("value")
-    return variables
+        value = entry.get("value")
+        if isinstance(value, str) and value.strip() == key:
+            skipped_keys.append(key)
+            continue
+        variables[key] = value
+    infos: list[InfoMessage] = []
+    if skipped_keys:
+        infos.append(
+            InfoMessage(
+                kind="skipped_self_referential_collection_variables",
+                message=(
+                    "Skipped self-referential collection variables from the base environment: "
+                    + ", ".join(f"'{key}'" for key in skipped_keys)
+                ),
+            )
+        )
+    return variables, infos
 
 
 def _parse_item(
